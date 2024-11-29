@@ -1,45 +1,38 @@
-/* Estilo para la cuadrícula */
-.grid-container {
-    position: relative;
-    width: 100%;
-    height: 100vh;
-    background-color: white;
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-  }
-  
-  .grid {
-    background: linear-gradient(90deg, #e1e1e1 1px, transparent 1px) 0 0,
-                linear-gradient(180deg, #e1e1e1 1px, transparent 1px) 0 0;
-    background-size: 20px 20px;
+/* styles.css */
+
+/* Establecer el fondo blanco y cuadrícula */
+.grid {
     position: absolute;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
-    pointer-events: none; /* No interactuar con la cuadrícula */
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    /* Crear las líneas de la cuadrícula */
+    background-image: 
+      linear-gradient(90deg, #dcdcdc 1px, transparent 1px), /* Líneas verticales */
+      linear-gradient(0deg, #dcdcdc 1px, transparent 1px); /* Líneas horizontales */
+    background-size: 20px 20px; /* Tamaño de la cuadrícula (20px x 20px) */
+    pointer-events: none; /* Asegura que la cuadrícula no interfiera con los clics */
+  }
+  
+  /* Contenedor de los botones */
+  .button-container {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 10; /* Para asegurarse de que los botones estén por encima de la cuadrícula */
   }
   
   /* Estilo para los botones */
-  button {
-    position: absolute;
-    z-index: 10;
-    margin: 10px;
-  }
-  
-  #addElementBtn {
-    left: 10px;
-    bottom: 70px;
-  }
-  
-  #moveBtn {
-    left: 150px;
-    bottom: 70px;
-  }
-  
-  #importExportBtn {
-    left: 300px;
-    bottom: 70px;
+  .button-container .btn {
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 150px;
   }
   
