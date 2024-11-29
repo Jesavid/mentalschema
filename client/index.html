@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mental Schema</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 
@@ -16,32 +17,41 @@
 
     <!-- Contenedor de botones -->
     <div class="button-container">
-      <!-- Botón para agregar un elemento -->
-      <button class="btn btn-primary rounded" id="addElementBtn">
-        Agregar Elemento
-      </button>
+     <!-- Botón para agregar un elemento -->
+     <button class="btn btn-primary rounded" id="addElementBtn">
+      <i class="bi bi-patch-plus"></i> <!-- Icono de agregar -->
+    </button>
 
-      <!-- Botón para moverse sin afectar al diagrama -->
-      <button class="btn btn-secondary rounded" id="moveBtn">Moverse</button>
+    <!-- Botón para moverse sin afectar al diagrama -->
+    <button class="btn btn-secondary rounded" id="moveBtn">
+      <i class="bi bi-hand-index"></i> <!-- Icono de mover -->
+    </button>
 
-      <!-- Menú desplegable para importar/exportar -->
-      <div class="dropdown">
-        <button class="btn btn-info dropdown-toggle rounded" type="button" id="importExportBtn"
-          data-bs-toggle="dropdown" aria-expanded="false">
-          Importar/Exportar
+       <!-- Menú desplegable para importar/exportar -->
+       <div class="dropdown">
+        <button class="btn btn-info dropdown-toggle rounded" type="button" id="importExportBtn" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="bi bi-arrow-down-up"></i> <!-- Icono de importar/exportar -->
         </button>
         <ul class="dropdown-menu" aria-labelledby="importExportBtn">
           <li>
-            <a class="dropdown-item" href="#" id="importJson">Importar JSON</a>
+            <a class="dropdown-item" href="#" id="importJson">
+              <i class="bi bi-file-earmark-code"></i> Importar <!-- Icono de archivo JSON -->
+            </a>
           </li>
           <li>
-            <a class="dropdown-item" href="#" id="exportJson">Exportar JSON</a>
+            <a class="dropdown-item" href="#" id="exportJson">
+              <i class="bi bi-file-earmark-code"></i> Exportar JSON <!-- Icono de archivo JSON -->
+            </a>
           </li>
           <li>
-            <a class="dropdown-item" href="#" id="exportXml">Exportar XML</a>
+            <a class="dropdown-item" href="#" id="exportXml">
+              <i class="bi bi-file-earmark-code"></i> Exportar XML <!-- Icono de archivo XML -->
+            </a>
           </li>
           <li>
-            <a class="dropdown-item" href="#" id="exportImage">Exportar Imagen</a>
+            <a class="dropdown-item" href="#" id="exportImage">
+              <i class="bi bi-image"></i> Exportar Imagen <!-- Icono de imagen -->
+            </a>
           </li>
         </ul>
       </div>
