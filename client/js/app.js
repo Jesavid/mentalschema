@@ -1,91 +1,115 @@
 document.addEventListener('DOMContentLoaded', () => {
     const addElementBtn = document.getElementById('addElementBtn');
     const elementsContainer = document.getElementById('elementsContainer');
-    const svgCanvas = document.getElementById('svgCanvas');
-    const arrowhead = document.getElementById('arrowhead');
-    
-    let elementsData = [];
-    
-    // Crear un nuevo elemento
+  
+    let elementsData = []; // Aquí almacenamos los datos de los elementos y relaciones
+    let arrows = []; // Aquí almacenamos las flechas para actualizarlas posteriormente
+    let isThrottling = false; // Bandera para controlar el delay de actualización
+  
+    // Evento para crear el primer elemento cuando se presiona el botón
     addElementBtn.addEventListener('click', () => {
       const newElement = createElement();
       elementsContainer.appendChild(newElement);
     });
-    
+  
     // Función para crear un nuevo elemento
     function createElement(level = 1, parent = null) {
       const element = document.createElement('div');
+      const elementId = `element-${Date.now()}`;
+  
       element.classList.add('element', `level${level}`);
       element.style.position = 'absolute';
       element.style.left = '50%';
       element.style.top = '50%';
       element.style.transform = 'translate(-50%, -50%)';
-    
-      const elementId = `element-${Date.now()}`;
-      element.setAttribute('data-id', elementId);
-    
+      element.setAttribute('data-id', elementId);  // Asignar un ID único al elemento
+  
+      // Crear contenido editable para el elemento
       const content = document.createElement('div');
       content.classList.add('content');
       content.setAttribute('contenteditable', 'true');
       content.innerText = `Elemento Nivel ${level}`;
       element.appendChild(content);
-    
-      elementsData.push({ id: elementId, level, connections: [] });
-    
+  
+      // Crear los botones para agregar elementos
       createAddButtons(element, level, elementId);
+  
+      // Habilitar movimiento del elemento
       enableElementMovement(element, elementId);
-    
+  
+      // Registrar el nuevo elemento en los datos
+      elementsData.push({
+        id: elementId,
+        content: `Elemento Nivel ${level}`,
+        level: level,
+        connections: [] // Inicia sin conexiones
+      });
+  
       return element;
     }
-    
-    // Crear los botones de agregar en los bordes del elemento
+  
+    // Función para crear los botones de agregar en los bordes del elemento
     function createAddButtons(element, level, elementId) {
       ['top', 'bottom', 'left', 'right'].forEach((position) => {
         const addBtn = document.createElement('button');
         addBtn.classList.add('add-btn', position);
         addBtn.innerHTML = '➕';
-    
+  
+        // Evento para crear un nuevo elemento
         addBtn.addEventListener('click', (event) => {
           event.stopPropagation();
-    
+  
           const newLevel = level === 3 ? 3 : level + 1;
           const newElement = createElement(newLevel, element);
+  
+          // Ajustar la posición del nuevo elemento basado en el borde clickeado
           const rect = element.getBoundingClientRect();
-    
+          let newElementX, newElementY;
+  
           if (position === 'top') {
-            newElement.style.top = `${rect.top - 300}px`;
+            newElementY = rect.top - 300;
+            newElementX = rect.left + rect.width / 2 - newElement.offsetWidth / 2;
           } else if (position === 'bottom') {
-            newElement.style.top = `${rect.top + 300}px`;
+            newElementY = rect.top + rect.height + 300;
+            newElementX = rect.left + rect.width / 2 - newElement.offsetWidth / 2;
           } else if (position === 'left') {
-            newElement.style.left = `${rect.left - 300}px`;
+            newElementY = rect.top + rect.height / 2 - newElement.offsetHeight / 2;
+            newElementX = rect.left - 300;
           } else if (position === 'right') {
-            newElement.style.left = `${rect.left + 300}px`;
+            newElementY = rect.top + rect.height / 2 - newElement.offsetHeight / 2;
+            newElementX = rect.left + rect.width + 300;
           }
-    
+  
+          newElement.style.left = `${newElementX}px`;
+          newElement.style.top = `${newElementY}px`;
+  
           elementsContainer.appendChild(newElement);
+  
+          // Crear flecha entre los elementos
           createArrow(element, newElement, position, elementId);
         });
-    
+  
         element.appendChild(addBtn);
-    
+  
+        // Mostrar los botones solo cuando el cursor se acerca
         element.addEventListener('mouseenter', () => {
           addBtn.style.opacity = 1;
         });
-    
+  
         element.addEventListener('mouseleave', () => {
           addBtn.style.opacity = 0;
         });
       });
     }
-    
-    // Crear flechas entre los elementos dentro del SVG
+  
+    // Función para crear flechas entre los elementos
     function createArrow(fromElement, toElement, position, fromElementId) {
       const fromRect = fromElement.getBoundingClientRect();
       const toRect = toElement.getBoundingClientRect();
-      
+  
       let startX, startY, endX, endY;
-      
-      // Calcular las coordenadas de la flecha según la posición
+  
+      // Ajuste de las coordenadas de la flecha según la posición
       switch (position) {
         case 'top':
           startX = fromRect.left + fromRect.width / 2;
@@ -104,100 +128,140 @@ document.addEventListener('DOMContentLoaded', () => {
           startY = fromRect.top + fromRect.height / 2;
           break;
       }
-      
+  
       endX = toRect.left + toRect.width / 2;
       endY = toRect.top + toRect.height / 2;
-      
-      // Dibujar la línea en el SVG
-      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      line.setAttribute('x1', startX);
-      line.setAttribute('y1', startY);
-      line.setAttribute('x2', endX);
-      line.setAttribute('y2', endY);
-      line.setAttribute('stroke', 'black');
-      line.setAttribute('stroke-width', '2');
-      
-      // Crear la flecha
-      const arrowheadClone = arrowhead.cloneNode(true);
-      arrowheadClone.setAttribute('transform', `translate(${endX - 5}, ${endY - 5})`);
-      
-      svgCanvas.appendChild(line);
-      svgCanvas.appendChild(arrowheadClone);
-      
-      // Registrar la conexión en los datos
-      elementsData.find(el => el.id === fromElementId).connections.push({
-        from: fromElementId,
-        to: toElement.getAttribute('data-id'),
-        line: line,
-        arrow: arrowheadClone
-      });
+  
+      const dx = endX - startX;
+      const dy = endY - startY;
+      const length = Math.sqrt(dx * dx + dy * dy);
+  
+      // Crear la línea de la flecha
+      const arrow = document.createElement('div');
+      arrow.classList.add('connection-arrow');
+      arrow.style.position = 'absolute';
+      arrow.style.width = `${length}px`;
+      arrow.style.height = '2px'; // Ajuste para visibilidad
+      arrow.style.backgroundColor = 'black'; // Color de la flecha
+      arrow.style.transformOrigin = '0 50%'; // Hacer que la rotación sea desde el inicio de la flecha
+      arrow.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`;
+      arrow.style.left = `${startX}px`;
+      arrow.style.top = `${startY}px`;
+  
+      // Crear la punta de la flecha
+      const arrowhead = document.createElement('div');
+      arrowhead.classList.add('arrowhead');
+      arrowhead.style.position = 'absolute';
+      arrowhead.style.width = '0';
+      arrowhead.style.height = '0';
+      arrowhead.style.borderLeft = '5px solid transparent';
+      arrowhead.style.borderRight = '5px solid transparent';
+      arrowhead.style.borderTop = '10px solid black';
+      arrowhead.style.left = `${endX - 5}px`;
+      arrowhead.style.top = `${endY - 5}px`;
+  
+      elementsContainer.appendChild(arrow);
+      elementsContainer.appendChild(arrowhead);
+  
+      // Registrar la relación en los datos
+      const fromElementData = elementsData.find((e) => e.id === fromElementId);
+      const toElementId = toElement.getAttribute('data-id');
+      fromElementData.connections.push({ targetId: toElementId, position });
+  
+      // Guardar la flecha
+      arrows.push({ arrow, arrowhead, fromElement, toElement });
     }
-    
-    // Habilitar el movimiento del elemento
+  
+    // Función para habilitar el movimiento de los elementos
     function enableElementMovement(element, elementId) {
       let isDragging = false;
       let offsetX = 0;
       let offsetY = 0;
-    
+  
       element.addEventListener('mousedown', (e) => {
         isDragging = true;
         const rect = element.getBoundingClientRect();
         offsetX = e.clientX - rect.left;
         offsetY = e.clientY - rect.top;
-    
+  
+        // Prevenir que el clic se propague hacia otros elementos
         e.preventDefault();
-    
+  
         const onMouseMove = (e) => {
           if (isDragging) {
             const newX = e.clientX - offsetX;
             const newY = e.clientY - offsetY;
             element.style.left = `${newX}px`;
             element.style.top = `${newY}px`;
-    
-            // Actualizar las flechas
-            updateArrowsPosition(elementId);
+  
+            // Solo actualizamos las flechas si no estamos en un estado de "throttle"
+            if (!isThrottling) {
+              isThrottling = true;
+              setTimeout(() => {
+                updateArrows();
+                isThrottling = false;
+              }, 100); // Actualizamos las flechas después de 100ms
+            }
           }
         };
-    
+  
         const onMouseUp = () => {
           isDragging = false;
           document.removeEventListener('mousemove', onMouseMove);
           document.removeEventListener('mouseup', onMouseUp);
         };
-    
+  
         document.addEventListener('mousemove', onMouseMove);
         document.addEventListener('mouseup', onMouseUp);
       });
     }
-    
-    // Actualizar las flechas cuando un elemento se mueve
-    function updateArrowsPosition(elementId) {
-      const element = elementsContainer.querySelector(`[data-id="${elementId}"]`);
-      const elementRect = element.getBoundingClientRect();
-    
-      // Actualizar las flechas asociadas al elemento
-      const elementData = elementsData.find(el => el.id === elementId);
-      elementData.connections.forEach(connection => {
-        const line = connection.line;
-        const arrow = connection.arrow;
-    
-        // Calcular las nuevas posiciones de la flecha
-        const fromRect = element.getBoundingClientRect();
-        const toElement = document.querySelector(`[data-id="${connection.to}"]`);
+  
+    // Función para actualizar las flechas
+    function updateArrows() {
+      // Actualizar solo las flechas que están relacionadas con el elemento movido
+      arrows.forEach(({ arrow, arrowhead, fromElement, toElement }) => {
+        const fromRect = fromElement.getBoundingClientRect();
         const toRect = toElement.getBoundingClientRect();
-    
-        const startX = fromRect.left + fromRect.width / 2;
-        const startY = fromRect.top + fromRect.height / 2;
-        const endX = toRect.left + toRect.width / 2;
-        const endY = toRect.top + toRect.height / 2;
-    
-        // Actualizar las posiciones de la línea y la flecha
-        line.setAttribute('x1', startX);
-        line.setAttribute('y1', startY);
-        line.setAttribute('x2', endX);
-        line.setAttribute('y2', endY);
-    
-        arrow.setAttribute('transform', `translate(${endX - 5}, ${endY - 5})`);
+  
+        let startX, startY, endX, endY;
+  
+        const position = elementsData.find((e) => e.id === fromElement.getAttribute('data-id')).connections.find((c) => c.targetId === toElement.getAttribute('data-id')).position;
+  
+        switch (position) {
+          case 'top':
+            startX = fromRect.left + fromRect.width / 2;
+            startY = fromRect.top;
+            break;
+          case 'bottom':
+            startX = fromRect.left + fromRect.width / 2;
+            startY = fromRect.top + fromRect.height;
+            break;
+          case 'left':
+            startX = fromRect.left;
+            startY = fromRect.top + fromRect.height / 2;
+            break;
+          case 'right':
+            startX = fromRect.left + fromRect.width;
+            startY = fromRect.top + fromRect.height / 2;
+            break;
+        }
+  
+        endX = toRect.left + toRect.width / 2;
+        endY = toRect.top + toRect.height / 2;
+  
+        const dx = endX - startX;
+        const dy = endY - startY;
+        const length = Math.sqrt(dx * dx + dy * dy);
+  
+        // Actualizar la posición de la flecha
+        arrow.style.width = `${length}px`;
+        arrow.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`;
+        arrow.style.left = `${startX}px`;
+        arrow.style.top = `${startY}px`;
+  
+        // Actualizar la punta de la flecha
+        arrowhead.style.left = `${endX - 5}px`;
+        arrowhead.style.top = `${endY - 5}px`;
       });
     }
   });
