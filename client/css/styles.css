@@ -1,38 +1,125 @@
-/* styles.css */
-
-/* Establecer el fondo blanco y cuadrícula */
-.grid {
+#elementsContainer {
+    position: relative;
+    height: 100vh;  /* Asegura que ocupe toda la pantalla */
+    background-color: #f0f0f0; /* Fondo gris claro */
+  }
+  
+  .element {
+    position: absolute;
+    padding: 10px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: lightblue;
+    cursor: pointer;
+    z-index: 1;
+    transition: transform 0.1s ease-in-out;
+    min-width: 100px;
+    min-height: 50px;
+  }
+  
+  .element.level1 {
+    background-color: darkblue;
+    color: white;
+    font-size: 20px;
+  }
+  
+  .element.level2 {
+    background-color: lightblue;
+    color: black;
+    font-size: 16px;
+  }
+  
+  .element.level3 {
+    background-color: white;
+    color: black;
+    font-size: 12px;
+  }
+  
+  .element .add-btn {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.2);
+    border: none;
+    border-radius: 50%;
+    padding: 5px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  
+  .element .add-btn.top {
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .element .add-btn.bottom {
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .element .add-btn.left {
+    left: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+  .element .add-btn.right {
+    right: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+  .element .connection-arrow {
+    position: absolute;
+    width: 2px;
+    background-color: black;
+    pointer-events: none;
+    z-index: 0;
+  }
+  
+  .element .content {
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+  }
+  
+  .element[contenteditable] {
+    border: 1px solid #ccc;
+    padding: 5px;
+    min-height: 40px;
+    min-width: 80px;
+  }
+  
+  .element:hover .add-btn {
+    opacity: 1;
+  }
+  
+  #svgCanvas {
+    pointer-events: none;  /* Permite que los elementos en el contenedor reciban clics, no el lienzo */
+  }
+  
+  #relationshipLine {
+    stroke: black;
+    stroke-width: 2;
+  }
+  
+  #arrowhead {
+    fill: black;
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: white;
-    /* Crear las líneas de la cuadrícula */
-    background-image: 
-      linear-gradient(90deg, #dcdcdc 1px, transparent 1px), /* Líneas verticales */
-      linear-gradient(0deg, #dcdcdc 1px, transparent 1px); /* Líneas horizontales */
-    background-size: 20px 20px; /* Tamaño de la cuadrícula (20px x 20px) */
-    pointer-events: none; /* Asegura que la cuadrícula no interfiera con los clics */
+    transform-origin: center;
   }
   
-  /* Contenedor de los botones */
-  .button-container {
+  .element .connection-arrow {
     position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 10px;
-    z-index: 10; /* Para asegurarse de que los botones estén por encima de la cuadrícula */
-  }
-  
-  /* Estilo para los botones */
-  .button-container .btn {
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 150px;
+    width: 2px;
+    background-color: black;
+    pointer-events: none;
+    z-index: 0;
   }
   
